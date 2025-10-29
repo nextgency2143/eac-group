@@ -1,0 +1,44 @@
+datasource db { provider = "mysql"; url = env("DATABASE_URL") }
+generator client { provider = "prisma-client-js" }
+
+model Customer {
+  id          Int       @id @default(autoincrement())
+  name        String?
+  phone       String?   @db.VarChar(20)
+  email       String?   @db.VarChar(191)
+  address     String?
+  tags        String?
+  created_at  DateTime  @default(now())
+  orders      Order[]
+}
+
+model Order {
+  id          Int        @id @default(autoincrement())
+  order_no    String     @db.VarChar(64)
+  create_time DateTime
+  customer_id Int
+  channel     String?
+  seller      String?
+  note        String?
+  amount      Decimal?   @db.Decimal(18,2)
+  discount    Decimal?   @db.Decimal(18,2)
+  total       Decimal?   @db.Decimal(18,2)
+  brand       String?
+  branch      String?
+  customer    Customer   @relation(fields: [customer_id], references: [id])
+  items       OrderItem[]
+  @@index([create_time])
+  @@index([customer_id])
+}
+
+model OrderItem {
+  id           Int       @id @default(autoincrement())
+  order_id     Int
+  sku          String?   @db.VarChar(64)
+  product_name String?
+  qty          Int
+  price        Decimal?  @db.Decimal(18,2)
+  amount       Decimal?  @db.Decimal(18,2)
+  order        Order     @relation(fields: [order_id], references: [id])
+  @@index([order_id])
+}
